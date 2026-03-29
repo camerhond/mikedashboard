@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mike's Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F4F0;--surface:#FFFFFF;--surface2:#EFEDE7;--surface3:#E8E6DF;--border:#E2DFD7;--border2:#D4D0C8;--text:#18180F;--text2:#6A6860;--text3:#A5A29B;--red:#C9402E;--red-bg:#FDF0EE;--red-light:#F7C8C2;--yellow:#B87D00;--yellow-bg:#FEF8E8;--yellow-light:#F5D98A;--green:#2A7040;--green-bg:#EEF6F1;--green-light:#9ED4AF;--blue:#1856A0;--blue-bg:#EDF3FB;--blue-light:#A8C8F0;--gray-bg:#F0EDE6;--r:10px;--r-sm:6px;--r-lg:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;}
+a{text-decoration:none;color:inherit;cursor:pointer;}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:100vh;}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.sb-top{padding:20px;border-bottom:1px solid var(--border);}
+.sb-avatar{width:40px;height:40px;background:var(--text);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;margin-bottom:12px;font-family:'DM Mono',monospace;}
+.sb-name{font-size:15px;font-weight:500;line-height:1.2;}
+.sb-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.sb-nav{padding:12px 10px;flex:1;}
+.nav-section{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);padding:12px 10px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.12s;margin-bottom:1px;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--text);color:white;}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:500;padding:1px 6px;border-radius:10px;background:var(--red);color:white;}
+.nav-item.active .nav-badge{background:rgba(255,255,255,0.2);}
+.sb-footer{padding:16px;border-top:1px solid var(--border);}
+.sb-date{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+.main{padding:32px;overflow-y:auto;max-width:1100px;}
+.page{display:none;}
+.page.active{display:block;}
+.ph{margin-bottom:28px;}
+.ph h1{font-size:24px;font-weight:400;letter-spacing:-0.3px;margin-bottom:3px;}
+.ph p{color:var(--text2);font-size:13px;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
+.metric-lbl{font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.metric-val{font-size:28px;font-weight:300;font-family:'DM Mono',monospace;line-height:1;}
+.metric-val.red{color:var(--red);}
+.metric-val.yellow{color:var(--yellow);}
+.metric-val.green{color:var(--green);}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.sl{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin:24px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.sl:first-child{margin-top:0;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;transition:border-color 0.12s;}
+.card:hover{border-color:var(--border2);}
+.card-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:5px;}
+.card-title{font-size:13px;font-weight:500;}
+.card-body{font-size:12px;color:var(--text2);line-height:1.5;}
+.card-action{font-size:11px;color:var(--blue);margin-top:7px;font-family:'DM Mono',monospace;}
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;letter-spacing:0.02em;}
+.br{background:var(--red-bg);color:var(--red);}
+.by{background:var(--yellow-bg);color:var(--yellow);}
+.bg{background:var(--green-bg);color:var(--green);}
+.bb{background:var(--blue-bg);color:var(--blue);}
+.bgray{background:var(--gray-bg);color:var(--text2);}
+.sched-row{display:grid;grid-template-columns:140px 1fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--border);align-items:baseline;}
+.sched-row:last-child{border-bottom:none;}
+.sched-day{font-size:12px;font-weight:500;font-family:'DM Mono',monospace;}
+.sched-today .sched-day{color:var(--blue);}
+.sched-event{font-size:13px;color:var(--text2);margin-bottom:2px;}
+.sched-event:last-child{margin-bottom:0;}
+.sched-tag{font-size:11px;font-weight:500;color:var(--blue);background:var(--blue-bg);padding:1px 6px;border-radius:4px;margin-left:6px;}
+.proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;transition:border-color 0.12s;}
+.proj-card:hover{border-color:var(--border2);}
+.proj-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.proj-card-name{font-size:14px;font-weight:500;}
+.proj-card-co{font-size:11px;color:var(--text3);margin-top:1px;}
+.proj-card-status{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px;}
+.prog-wrap{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-bottom:6px;}
+.prog-bar{height:100%;border-radius:2px;}
+.prog-bar.red{background:var(--red-light);}
+.prog-bar.yellow{background:var(--yellow-light);}
+.prog-bar.green{background:var(--green-light);}
+.prog-bar.blue{background:var(--blue-light);}
+.proj-card-foot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text3);}
+.pa-item{display:grid;grid-template-columns:1fr 90px 60px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+.pa-item:last-child{border-bottom:none;}
+.pa-cat{font-size:10px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.05em;}
+.pa-title{font-size:13px;font-weight:500;margin-bottom:1px;}
+.pa-note{font-size:11px;color:var(--text2);}
+.pa-item.done .pa-title{text-decoration:line-through;opacity:0.4;}
+.pa-item.done .pa-note{opacity:0.35;}
+.done-btn{font-size:11px;padding:4px 10px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all 0.12s;white-space:nowrap;}
+.done-btn:hover{background:var(--green-bg);color:var(--green);border-color:var(--green-light);}
+.pa-item.done .done-btn{background:var(--green-bg);color:var(--green);border-color:var(--green-light);}
+.email-item{display:grid;grid-template-columns:1fr 100px;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:start;}
+.email-item:last-child{border-bottom:none;}
+.email-from{font-size:13px;font-weight:500;margin-bottom:2px;}
+.email-body{font-size:12px;color:var(--text2);line-height:1.4;}
+.people-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.person-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.person-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.person-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;}
+.person-name{font-size:13px;font-weight:500;}
+.person-co{font-size:11px;color:var(--text3);}
+.person-row{font-size:11px;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;}
+.person-row:last-child{border-bottom:none;}
+.person-label{color:var(--text3);flex-shrink:0;}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.main{padding:16px;}.metrics{grid-template-columns:repeat(2,1fr);}.proj-grid{grid-template-columns:1fr;}.people-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-top">
+    <div class="sb-avatar">MG</div>
+    <div class="sb-name">Mike Guaglione</div>
+    <div class="sb-sub">Social Science · EyeCatcher · Lightning LMS</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-section">Daily</div>
+    <a class="nav-item active" onclick="showPage('today',this)"><span class="nav-icon">◉</span>Today<span class="nav-badge">3</span></a>
+    <a class="nav-item" onclick="showPage('schedule',this)"><span class="nav-icon">◷</span>Schedule</a>
+    <div class="nav-section">Work</div>
+    <a class="nav-item" onclick="showPage('overview',this)"><span class="nav-icon">▦</span>Project overview</a>
+    <a class="nav-item" onclick="showPage('ss',this)"><span class="nav-icon">◈</span>Social Science</a>
+    <a class="nav-item" onclick="showPage('ec',this)"><span class="nav-icon">◈</span>EyeCatcher</a>
+    <a class="nav-item" onclick="showPage('pesky',this)"><span class="nav-icon">✓</span>Pesky admin<span class="nav-badge">17</span></a>
+    <a class="nav-item" onclick="showPage('email',this)"><span class="nav-icon">◻</span>Email log</a>
+    <div class="nav-section">People</div>
+    <a class="nav-item" onclick="showPage('people',this)"><span class="nav-icon">○</span>Key contacts</a>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-date">Updated Mar 26, 2026</div>
+    <div class="sb-date" style="color:var(--text3);font-size:10px;margin-top:2px;">Prepared by Camerhon Diaz</div>
+  </div>
+</aside>
+<main class="main">
+
+<!-- TODAY -->
+<div class="page active" id="page-today">
+  <div class="ph"><h1>Good morning, Mike.</h1><p>Thursday, March 26, 2026 · Here's what needs you.</p></div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Needs you today</div><div class="metric-val red">3</div><div class="metric-sub">unblocked by you</div></div>
+    <div class="metric"><div class="metric-lbl">At risk</div><div class="metric-val yellow">5</div><div class="metric-sub">next 2–3 days</div></div>
+    <div class="metric"><div class="metric-lbl">Pesky admin</div><div class="metric-val">17</div><div class="metric-sub">items queued</div></div>
+    <div class="metric"><div class="metric-lbl">Active projects</div><div class="metric-val green">14</div><div class="metric-sub">across 3 companies</div></div>
+  </div>
+  <div class="sl">🔴 needs you today</div>
+  <div class="card"><div class="card-row"><span class="card-title">Hum creative — final review</span><span class="badge br">Today</span></div><div class="card-body">Jonah sent the final Hum creatives. Approve today and Jonah sends to client same day.</div><div class="card-action">→ Reply to Jonah with approval or notes</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Dallas flight — book now</span><span class="badge br">ASAP</span></div><div class="card-body">Wed April 22, Delta direct NY → DFW. Dad lands Thu April 23 at 11:28am (AA1692 from PHL). Leah flies free on companion cert — expires end of April. Need: JFK, LGA, or EWR?</div><div class="card-action">→ Drop preferred airport and Cam sends options</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Dallas tickets — confirm 3 attendees</span><span class="badge br">ASAP</span></div><div class="card-body">✓ Mike, Bob confirmed. ⚠ Leah, Carly Cates, Connor Cates unconfirmed. Event code: VIP. April 23, 6:30–9:30pm, Arlington Hall at Turtle Creek Park.</div><div class="card-action">→ Confirm the 3 unconfirmed and Cam purchases tickets</div></div>
+  <div class="sl">🟡 at risk</div>
+  <div class="card"><div class="card-row"><span class="card-title">NBCU Commitment to Privacy — feedback due today</span><span class="badge by">Mar 26</span></div><div class="card-body">Storyboard with Tammy. Comments visible in Articulate. Cam following up by noon.</div><div class="card-action">→ No action from you yet. Cam has it.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Co-26 Insider Trading — storyboard review with Dan</span><span class="badge by">Apr 6</span></div><div class="card-body">1 video remaining. Leaving for retreat. Dan needs review today.</div><div class="card-action">→ Cam coordinating. Let her know once scheduled.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Kevin Pearson happy hour — prep needed</span><span class="badge by">Tue Mar 31</span></div><div class="card-body">5:30pm Tuesday. Pitching Lightning LMS affiliate (20% billing). Need contracts + affiliate overview doc from Joe + Lauren.</div><div class="card-action">→ Cam reminding Kevin Mon PM. Confirm docs from Joe + Lauren.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Taxes — Social Science + Form IT-204</span><span class="badge by">Apr 15</span></div><div class="card-body">Need 1.5hr block + 45min follow-up next week. Form IT-204 Partnership Return for SS Agency LLC also due April 15.</div><div class="card-action">→ Tell Cam preferred days and she blocks it</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">LegalZoom registered agent — $399 auto-renewal</span><span class="badge by">Apr 24</span></div><div class="card-body">Auto-renews April 24. Cam researching what this is + alternatives before it charges.</div><div class="card-action">→ Cam brings options to Pesky Admin block Friday</div></div>
+  <div class="sl">⚪ one thing to think about today</div>
+  <div class="card"><div class="card-row"><span class="card-title">Richard Vague — when's the next podcast shoot?</span><span class="badge bgray">Your call</span></div><div class="card-body">Before Dallas (week of Apr 13–17) — tighter but fresh momentum. After Dallas (week of Apr 27+) — more breathing room. Once you pick, Cam handles Dan Sawyer, Peerspace, questions.</div><div class="card-action">→ Pick a week. Cam handles everything from there.</div></div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="page" id="page-schedule">
+  <div class="ph"><h1>Schedule</h1><p>This week, upcoming, and recurring commitments</p></div>
+  <div class="sl">This week</div>
+  <div class="sched-row sched-today"><div class="sched-day">Thu Mar 26</div><div><div class="sched-event">SS Retreat <span class="sched-tag">All day</span></div></div></div>
+  <div class="sched-row"><div class="sched-day">Fri Mar 27</div><div><div class="sched-event">Pesky Admin block — 1hr (talent payment log + admin items)</div><div class="sched-event">4:00pm — Lunch/dinner with Thomas Keown (Many Hopes)</div></div></div>
+  <div class="sl">Next week</div>
+  <div class="sched-row"><div class="sched-day">Mon Mar 30</div><div><div class="sched-event">Red Meat Monday — leave by 5:30pm hard stop</div></div></div>
+  <div class="sched-row"><div class="sched-day">Tue Mar 31</div><div><div class="sched-event">5:30pm — Kevin Pearson happy hour <span class="sched-tag">Lightning LMS affiliate pitch</span></div></div></div>
+  <div class="sl">Upcoming calls</div>
+  <div class="sched-row"><div class="sched-day">Thu Apr 2</div><div><div class="sched-event">1:00pm — Vince Freeman · CaptureCulture (Damascus Creative)</div></div></div>
+  <div class="sched-row"><div class="sched-day">Fri Apr 3</div><div><div class="sched-event">1:30pm — Matt Brady · Mirage / Volley Solutions (intro via Tyler Prieb)</div></div></div>
+  <div class="sched-row"><div class="sched-day">Fri Apr 24</div><div><div class="sched-event">Jonah PTO — pending approval</div></div></div>
+  <div class="sl">Dallas trip — April 22–26</div>
+  <div class="sched-row"><div class="sched-day">Wed Apr 22</div><div><div class="sched-event">Fly to Dallas (DFW) — Frisco golf + free night (Steve Reese / Water is Basic)</div></div></div>
+  <div class="sched-row"><div class="sched-day">Thu Apr 23</div><div><div class="sched-event">Dad (Bob) lands DFW 11:28am — AA1692 from PHL</div><div class="sched-event">6:30–9:30pm — Thirst No More · Arlington Hall at Turtle Creek Park <span class="sched-tag">Code: VIP</span></div></div></div>
+  <div class="sched-row"><div class="sched-day">Sun Apr 26</div><div><div class="sched-event">Dad returns DFW → PHL at 4:12pm (AA1728)</div></div></div>
+  <div class="sl">Recurring</div>
+  <div class="sched-row"><div class="sched-day">Every Monday</div><div><div class="sched-event">Red Meat Monday — leave by 5:30pm hard stop. Groceries delivered before you get home.</div></div></div>
+  <div class="sched-row"><div class="sched-day">Every Friday</div><div><div class="sched-event">Pesky Admin block — 2hrs locked on Social Science calendar</div></div></div>
+</div>
+
+<!-- PROJECT OVERVIEW -->
+<div class="page" id="page-overview">
+  <div class="ph"><h1>Project overview</h1><p>All active projects across Social Science NYC, EyeCatcher Creative, and Lightning LMS</p></div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Total active</div><div class="metric-val">14</div></div>
+    <div class="metric"><div class="metric-lbl">On track</div><div class="metric-val green">7</div></div>
+    <div class="metric"><div class="metric-lbl">At risk</div><div class="metric-val yellow">5</div></div>
+    <div class="metric"><div class="metric-lbl">Urgent</div><div class="metric-val red">2</div></div>
+  </div>
+  <div class="sl">Social Science NYC</div>
+  <div class="proj-grid">
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Charity Water</div><div class="proj-card-co">Social Science · Paid media</div></div><span class="badge br">Thursday</span></div><div class="proj-card-status">Google CAC $868 vs $400 goal. Brady leaving, Anthony takes over Thursday. Jason cutting Google, shifting to Meta. Mike needs to greenlight cuts.</div><div class="prog-wrap"><div class="prog-bar yellow" style="width:45%"></div></div><div class="proj-card-foot"><span>Jason + Jonah</span><span>Mike: greenlight</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Hum</div><div class="proj-card-co">Social Science · Paid media + creative</div></div><span class="badge br">Today</span></div><div class="proj-card-status">Final creatives ready with Jonah. LinkedIn down to $77 CPL. Creative review today at 2:30. Approve and client receives same day.</div><div class="prog-wrap"><div class="prog-bar green" style="width:85%"></div></div><div class="proj-card-foot"><span>Jonah</span><span>Mike: review + approve</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Holi Testing Matrix</div><div class="proj-card-co">Social Science · Creative</div></div><span class="badge by">Tue Mar 31</span></div><div class="proj-card-status">Danielle + Jenna handling. Concepts due Tuesday. Jacob rendering story versions today. New testing matrix (6 concepts, 3 talent) Monday March 30.</div><div class="prog-wrap"><div class="prog-bar yellow" style="width:60%"></div></div><div class="proj-card-foot"><span>Danielle + Jenna</span><span>Mike: review Fireflies</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">UMGC</div><div class="proj-card-co">Social Science · Paid media</div></div><span class="badge bgray">This week</span></div><div class="proj-card-status">Testing matrix meeting booked with Lauren. Evan recorded UMGC Loom. Aditi emails in progress from Cam.</div><div class="prog-wrap"><div class="prog-bar blue" style="width:70%"></div></div><div class="proj-card-foot"><span>Cam + Alex</span><span>Aditi emails in progress</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Richard Vague Podcast</div><div class="proj-card-co">Social Science · Content</div></div><span class="badge bgray">Apr 10</span></div><div class="proj-card-status">✓ Shorts done. Mike edited footage — Frame link sending today. Long-form clips week of Mar 30. Next shoot TBD (before or after Dallas).</div><div class="prog-wrap"><div class="prog-bar green" style="width:65%"></div></div><div class="proj-card-foot"><span>Cam + Mike</span><span>Second shorts batch Apr 10</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Water is Basic — Dallas</div><div class="proj-card-co">Social Science · Events + content</div></div><span class="badge by">Apr 22</span></div><div class="proj-card-status">❌ Donor letters not sent. ✓ FundraiseUp to Steve + Carrie. Tools video sent. IG shorts + aesthetic + poetry video open for next week.</div><div class="prog-wrap"><div class="prog-bar yellow" style="width:40%"></div></div><div class="proj-card-foot"><span>Mike + Cam</span><span>Mike: donor letters + flight</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Lionsgate</div><div class="proj-card-co">Social Science · eLearning</div></div><span class="badge by">This week</span></div><div class="proj-card-status">Pushing back on scheduling. Mike trying to move them quicker. Content deploy this week.</div><div class="prog-wrap"><div class="prog-bar yellow" style="width:35%"></div></div><div class="proj-card-foot"><span>Mike</span><span>Content deploy this week</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Many Hopes Podcast</div><div class="proj-card-co">Social Science · Content</div></div><span class="badge bg">Done</span></div><div class="proj-card-status">✓ Shoot happened Monday March 23. Dan (RV) shot it. Location: The Nest, 1234 Broadway. Mike edited footage. Frame link going out today.</div><div class="prog-wrap"><div class="prog-bar green" style="width:95%"></div></div><div class="proj-card-foot"><span>Cam</span><span>Footage email sending today</span></div></div>
+  </div>
+  <div class="sl">EyeCatcher Creative</div>
+  <div class="proj-grid">
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">NBCU Commitment to Privacy</div><div class="proj-card-co">EyeCatcher · eLearning</div></div><span class="badge br">Mar 26</span></div><div class="proj-card-status">Storyboard sent to Tammy. Feedback due today. Comments visible in Articulate. Cam following up by noon.</div><div class="prog-wrap"><div class="prog-bar red" style="width:55%"></div></div><div class="proj-card-foot"><span>Cam + Dan</span><span>Tammy feedback due today</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Co-26 Insider Trading</div><div class="proj-card-co">EyeCatcher · eLearning</div></div><span class="badge by">Apr 6</span></div><div class="proj-card-status">SOW sent to Mikki — confirmed reviewing. SB WIP, 1 video remaining. Storyboard session today with Dan.</div><div class="prog-wrap"><div class="prog-bar yellow" style="width:65%"></div></div><div class="proj-card-foot"><span>Dan Gorbey</span><span>SB due Apr 6</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Co-26 Think Twice</div><div class="proj-card-co">EyeCatcher · eLearning</div></div><span class="badge bgray">Next week</span></div><div class="proj-card-status">Followed up with Renae. Feedback expected early next week. In client review.</div><div class="prog-wrap"><div class="prog-bar blue" style="width:50%"></div></div><div class="proj-card-foot"><span>Renae (client)</span><span>Feedback early next week</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">NBCU Knowledge Checks + Translation</div><div class="proj-card-co">EyeCatcher · eLearning</div></div><span class="badge by">Mar 31</span></div><div class="proj-card-status">Two projects: podcast eLearning (translate all) + UHS (English only). Kevin owes final English KCs Mar 31 + Redokun invite list.</div><div class="prog-wrap"><div class="prog-bar yellow" style="width:40%"></div></div><div class="proj-card-foot"><span>Kevin (NBCU)</span><span>Kevin due Mar 31</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">NBCU Lightning LMS</div><div class="proj-card-co">EyeCatcher · eLearning</div></div><span class="badge bgray">TBD</span></div><div class="proj-card-status">Pending NBCU internal team update. No action until they respond.</div><div class="prog-wrap"><div class="prog-bar blue" style="width:20%"></div></div><div class="proj-card-foot"><span>NBCU</span><span>Waiting on them</span></div></div>
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Tu_25 Code of Conduct</div><div class="proj-card-co">EyeCatcher · eLearning · Televisa</div></div><span class="badge bgray">Near complete</span></div><div class="proj-card-status">Dan editing WIP + captions. Near completion. Pending Frank's InDesign/PDF file.</div><div class="prog-wrap"><div class="prog-bar green" style="width:80%"></div></div><div class="proj-card-foot"><span>Dan Gorbey</span><span>Pending Frank</span></div></div>
+  </div>
+  <div class="sl">Lightning LMS</div>
+  <div class="proj-grid">
+    <div class="proj-card"><div class="proj-card-top"><div><div class="proj-card-name">Kevin Pearson — affiliate pitch</div><div class="proj-card-co">Lightning LMS · Business development</div></div><span class="badge by">Tue Mar 31</span></div><div class="proj-card-status">Happy hour Tuesday 5:30pm. Pitching 20% affiliate deal. Need contracts + affiliate overview doc from Joe + Lauren. Calendar invite sent to Kevin.</div><div class="prog-wrap"><div class="prog-bar yellow" style="width:50%"></div></div><div class="proj-card-foot"><span>Mike</span><span>Docs needed from Joe + Lauren</span></div></div>
+  </div>
+</div>
+
+<!-- SOCIAL SCIENCE DETAIL -->
+<div class="page" id="page-ss">
+  <div class="ph"><h1>Social Science NYC</h1><p>Detailed status on all SS projects and clients</p></div>
+  <div class="sl">Charity Water</div>
+  <div class="card"><div class="card-row"><span class="card-title">Google CAC — $868 vs $400 goal</span><span class="badge br">Thursday call</span></div><div class="card-body">Brady leaving — Anthony (his boss) takes over and will question everything. Jason cutting Google spend, underspend shifts to Meta first. Jonah outreaching Danny for predictive audience (SQL-qualified leads, syndication stage).</div><div class="card-action">→ Mike: greenlight Jason's Google cuts + approve Meta budget shift</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Kalahari bidding on brand terms</span><span class="badge by">Thursday</span></div><div class="card-body">Jason building impression share view for Thursday call. Recommendation sent to Brady, he said he'd pass it on. No confirmed response.</div><div class="card-action">→ Mike: come prepared to push back Thursday</div></div>
+  <div class="sl">Holi</div>
+  <div class="card"><div class="card-row"><span class="card-title">Testing matrix — edit pass + new matrix</span><span class="badge by">Tue Mar 31</span></div><div class="card-body">Danielle + Jenna handling concepts. Jacob rendering story versions today. Plan: review today, 4x5s tomorrow AM, send to Jonathan tomorrow PM with Jonah Loom explaining thinking. New full testing matrix (6 concepts, 3 talent) due Monday March 30.</div><div class="card-action">→ Mike: review story versions today. Review Fireflies for full context.</div></div>
+  <div class="sl">Richard Vague</div>
+  <div class="card"><div class="card-row"><span class="card-title">Current batch — footage + long-form</span><span class="badge bg">Mostly done</span></div><div class="card-body">✓ Shorts done. ✓ Mike edited footage — Frame link going to Dan McShane + Mike Grady today. Long-form clips: 2–3 clips week of Mar 30. Reaction clips tracker: Cam sending to Mike to review before Grace/Dan. Layman's economics format: simple question format to plan.</div><div class="card-action">→ Cam sending footage email today. Mike: review reaction clips tracker.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Dan McShane check-in — 3 questions pending reply</span><span class="badge by">Reply today</span></div><div class="card-body">1) Episodic Tuesday release (8 eps then full) — draft says yes + tease next ep each week. 2) Weekly Comment production — first 30 sec, teleprompter moments. 3) Thumbnails/titles — would you click this if you didn't know Richard? Draft reply ready, 3-hour rule applies.</div><div class="card-action">→ Mike: review draft reply or it sends in 3 hours</div></div>
+  <div class="sl">Water is Basic</div>
+  <div class="card"><div class="card-row"><span class="card-title">Dallas event — April 23</span><span class="badge by">Apr 22</span></div><div class="card-body">Thirst No More. Arlington Hall at Turtle Creek Park. 6:30–9:30pm. Smart casual. Download Givi app before arriving. ✓ Mike, Bob confirmed. ⚠ Leah, Carly Cates, Connor Cates unconfirmed. Code: VIP.</div><div class="card-action">→ Mike: confirm Leah + Carly + Connor. Book Delta direct to DFW Apr 22.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">FundraiseUp landing page</span><span class="badge bg">Sent</span></div><div class="card-body">Dan Gorby built it. Mike reviewed. Sent to Steve and Carrie for publishing. Waiting on their feedback.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Content with Steve — next week</span><span class="badge by">Next week</span></div><div class="card-body">✓ Tools + spare parts video sent. Still open: 4–5 short-form Instagram videos, aesthetic video (priority for Dallas), poetry/spoken word video with bureau clips.</div><div class="card-action">→ Block calendar with Steve next week</div></div>
+  <div class="sl">New biz</div>
+  <div class="card"><div class="card-row"><span class="card-title">Meryl (Quirk Creative) — potential co-pitch</span><span class="badge by">Tue Mar 31</span></div><div class="card-body">Met via Bennett. Client in educational space looking to switch social agencies. Meryl doing fact-finding on media spend + platforms. Getting back Mon PM / Tue AM. White label or co-pitch potential. Mike offered 20% referral year 1.</div><div class="card-action">→ Cam follows up Tue Mar 31 if no word</div></div>
+</div>
+
+<!-- EYECATCHER DETAIL -->
+<div class="page" id="page-ec">
+  <div class="ph"><h1>EyeCatcher Creative</h1><p>Detailed status on all EC projects</p></div>
+  <div class="sl">NBCU</div>
+  <div class="card"><div class="card-row"><span class="card-title">Commitment to Privacy — storyboard feedback</span><span class="badge br">Today Mar 26</span></div><div class="card-body">Storyboard sent to Tammy. Feedback due today. Comments visible in Articulate. Cam following up by noon. Once locked, revisions begin next week.</div><div class="card-action">→ Cam following up. No action from Mike yet.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Knowledge Checks + Translation Scope</span><span class="badge by">Mar 31</span></div><div class="card-body">Two projects: nbcu_26_pdcst_elearning (update KCs + translate all languages) and nbcu_26_uhs (English only). Kevin owes: final approved English KCs by Mar 31 + Redokun invite list (who reviews which languages).</div><div class="card-action">→ Cam chasing Kevin. Mike follows up directly if Kevin quiet after Mar 31.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">International Lightning LMS Content</span><span class="badge bgray">TBD</span></div><div class="card-body">Pending NBCU internal team update. No action needed.</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Nbcu_25_data</span><span class="badge bgray">On hold</span></div><div class="card-body">On hold. No action needed.</div></div>
+  <div class="sl">Comcast</div>
+  <div class="card"><div class="card-row"><span class="card-title">Co-26 Insider Trading — storyboard</span><span class="badge by">Apr 6</span></div><div class="card-body">SOW sent to Mikki — confirmed reviewing. SB WIP, 1 video remaining. Storyboard session today. Dan on paternity leave March 23 — coverage continuity risk post-April 6. ElevenLabs AI VO for Alpha.</div><div class="card-action">→ Mike: review with Dan today before retreat</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Co-26 Think Twice</span><span class="badge bgray">Next week</span></div><div class="card-body">Followed up with Renae. Feedback expected early next week.</div><div class="card-action">→ Cam monitoring</div></div>
+  <div class="card"><div class="card-row"><span class="card-title">Co-26 Commitment to Privacy (new)</span><span class="badge bgray">Apr 9–20</span></div><div class="card-body">New project. First draft window April 9–20. Email sent to Renae regarding budget — no response yet.</div><div class="card-action">→ Cam following up with Renae on budget</div></div>
+  <div class="sl">Televisa</div>
+  <div class="card"><div class="card-row"><span class="card-title">Tu_25 Code of Conduct — Spanish</span><span class="badge bgray">Near complete</span></div><div class="card-body">Dan editing WIP + captions. Near completion. Pending Frank's InDesign/PDF file.</div><div class="card-action">→ Dan handling. Cam monitoring.</div></div>
+</div>
+
+<!-- PESKY ADMIN -->
+<div class="page" id="page-pesky">
+  <div class="ph"><h1>Pesky Admin</h1><p>Weekly 2hr block every Friday. Mike works top to bottom. Cam adds items as they come in.</p></div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-lbl">Total items</div><div class="metric-val">17</div></div>
+    <div class="metric"><div class="metric-lbl">Urgent</div><div class="metric-val red">6</div></div>
+    <div class="metric"><div class="metric-lbl">This week</div><div class="metric-val yellow">5</div></div>
+    <div class="metric"><div class="metric-lbl">Done</div><div class="metric-val green" id="done-count">0</div></div>
+  </div>
+  <div class="sl">💰 Finance</div>
+  <div class="pa-item" id="pa1"><div><div class="pa-cat">Finance</div><div class="pa-title">Jonah reimbursement — $129.40</div><div class="pa-note">NYC trip: Amtrak + parking. Receipts attached in his email to Mike + Evan.</div></div><span class="badge br">ASAP</span><button class="done-btn" onclick="paDone('pa1')">Done</button></div>
+  <div class="pa-item" id="pa2"><div><div class="pa-cat">Finance</div><div class="pa-title">Jonah health insurance stipend</div><div class="pa-note">Not in March pay. Now full time — confirm it's being added to a check each month.</div></div><span class="badge br">ASAP</span><button class="done-btn" onclick="paDone('pa2')">Done</button></div>
+  <div class="pa-item" id="pa3"><div><div class="pa-cat">Finance</div><div class="pa-title">Talent payment log</div><div class="pa-note">Never completed. ~1hr to go through all talent payments in one sitting.</div></div><span class="badge by">Friday</span><button class="done-btn" onclick="paDone('pa3')">Done</button></div>
+  <div class="pa-item" id="pa4"><div><div class="pa-cat">Finance</div><div class="pa-title">Pay Dan Sawyer (Hardcut Productions) — Invoice 1076, $900</div><div class="pa-note">Many Hopes podcast shoot. QuickBooks invoice in email. dan@hardcutproductions.com · +1 (609) 970-6426</div></div><span class="badge br">ASAP</span><button class="done-btn" onclick="paDone('pa4')">Done</button></div>
+  <div class="pa-item" id="pa5"><div><div class="pa-cat">Finance</div><div class="pa-title">Social Science taxes — 1.5hr block + 45min follow-up</div><div class="pa-note">SS is the main one. EyeCatcher + personal are easy. All due April 15.</div></div><span class="badge br">Apr 15</span><button class="done-btn" onclick="paDone('pa5')">Done</button></div>
+  <div class="pa-item" id="pa6"><div><div class="pa-cat">Finance</div><div class="pa-title">EyeCatcher + personal taxes</div><div class="pa-note">Mike said these are easy. Do after Social Science taxes are sorted.</div></div><span class="badge by">Apr 15</span><button class="done-btn" onclick="paDone('pa6')">Done</button></div>
+  <div class="sl">👥 HR / Team</div>
+  <div class="pa-item" id="pa7"><div><div class="pa-cat">HR</div><div class="pa-title">Jonah PTO request — Friday April 24</div><div class="pa-note">Friend visiting from UK. Mentioned to Evan a couple weeks ago. Approve or decline.</div></div><span class="badge by">This week</span><button class="done-btn" onclick="paDone('pa7')">Done</button></div>
+  <div class="pa-item" id="pa8"><div><div class="pa-cat">HR</div><div class="pa-title">Send Jenna promotion note to team</div><div class="pa-note">Gave Jenna a raise + promoting her to Creative Director.</div></div><span class="badge by">This week</span><button class="done-btn" onclick="paDone('pa8')">Done</button></div>
+  <div class="sl">📋 Legal / Compliance</div>
+  <div class="pa-item" id="pa9"><div><div class="pa-cat">Legal</div><div class="pa-title">EC — Pennsylvania Annual Report</div><div class="pa-note">EyeCatcher Creative LLC annual report filing. Check deadline at Pennsylvania DOS.</div></div><span class="badge bgray">Check deadline</span><button class="done-btn" onclick="paDone('pa9')">Done</button></div>
+  <div class="pa-item" id="pa10"><div><div class="pa-cat">Legal</div><div class="pa-title">SS — Annual Report + Form IT-204 Partnership Return</div><div class="pa-note">Social Science Agency LLC. NY state filing. Due April 15. Min fee $25. File at tax.ny.gov</div></div><span class="badge br">Apr 15</span><button class="done-btn" onclick="paDone('pa10')">Done</button></div>
+  <div class="pa-item" id="pa11"><div><div class="pa-cat">Legal</div><div class="pa-title">LegalZoom registered agent — review $399/year auto-renewal</div><div class="pa-note">Auto-renews April 24. Decide: keep, cancel, or find cheaper alternative. Call (844) 381-8758 before Apr 24.</div></div><span class="badge by">Apr 24</span><button class="done-btn" onclick="paDone('pa11')">Done</button></div>
+  <div class="sl">📄 Vendor / Contracts</div>
+  <div class="pa-item" id="pa12"><div><div class="pa-cat">Vendor</div><div class="pa-title">David contract ending March 27</div><div class="pa-note">Emailed Steve (WiB) asking if he wants to extend. Awaiting reply from Steve.</div></div><span class="badge br">Mar 27</span><button class="done-btn" onclick="paDone('pa12')">Done</button></div>
+  <div class="pa-item" id="pa13"><div><div class="pa-cat">Vendor</div><div class="pa-title">Lightning LMS contracts + affiliate doc for Kevin meeting</div><div class="pa-note">Need to bring to happy hour Tuesday Mar 31. Joe + Lauren from Lightning working on docs.</div></div><span class="badge by">Tue Mar 31</span><button class="done-btn" onclick="paDone('pa13')">Done</button></div>
+  <div class="sl">✈️ Logistics</div>
+  <div class="pa-item" id="pa14"><div><div class="pa-cat">Logistics</div><div class="pa-title">Book Dallas flight — Wed April 22, Delta direct NY → DFW</div><div class="pa-note">Leah on companion certificate (expires end of April). Need airport: JFK, LGA, or EWR. Cam finds options once confirmed.</div></div><span class="badge br">ASAP</span><button class="done-btn" onclick="paDone('pa14')">Done</button></div>
+  <div class="pa-item" id="pa15"><div><div class="pa-cat">Logistics</div><div class="pa-title">Buy Dallas event tickets — use code VIP</div><div class="pa-note">Leah, Carly Cates, Connor Cates unconfirmed. Cam purchases once Mike confirms all 3.</div></div><span class="badge br">ASAP</span><button class="done-btn" onclick="paDone('pa15')">Done</button></div>
+  <div class="sl">🤝 New Biz</div>
+  <div class="pa-item" id="pa16"><div><div class="pa-cat">New Biz</div><div class="pa-title">Send Meryl (Quirk Creative) a SS hoodie</div><div class="pa-note">She's in France — shipping ~$35–45, 20% VAT on arrival. Worth asking when she's next in NYC instead?</div></div><span class="badge by">This week</span><button class="done-btn" onclick="paDone('pa16')">Done</button></div>
+  <div class="sl">🔁 Recurring Setup</div>
+  <div class="pa-item" id="pa17"><div><div class="pa-cat">Recurring</div><div class="pa-title">Red Meat Monday — set up grocery delivery</div><div class="pa-note">Every Monday. Leave 5:30pm hard stop. Cam sets up recurring order once Mike confirms preferred service + usual list.</div></div><span class="badge bgray">Setup needed</span><button class="done-btn" onclick="paDone('pa17')">Done</button></div>
+</div>
+
+<!-- EMAIL LOG -->
+<div class="page" id="page-email">
+  <div class="ph"><h1>Email log</h1><p>Every notable email actioned — what happened and what's next</p></div>
+  <div class="sl">Action needed</div>
+  <div class="email-item"><div><div class="email-from">Dan McShane (Governor's Woods) — RV channel feedback</div><div class="email-body">3 questions: episodic release plan, Weekly Comment production, thumbnails/titles strategy. Draft reply ready for Mike. 3-hour rule — sends if no response from Mike.</div></div><span class="badge by">Draft ready</span></div>
+  <div class="email-item"><div><div class="email-from">Michael Grady (Governor's Woods) — RV footage request</div><div class="email-body">Requested full footage from first Richard Vague interview. Mike edited (~1TB raw, not practical). Frame link email drafted and sending today.</div></div><span class="badge by">Send today</span></div>
+  <div class="email-item"><div><div class="email-from">Dan Sawyer (Hardcut Productions) — Invoice 1076, $900</div><div class="email-body">Many Hopes podcast shoot invoice. QuickBooks. Added to Pesky Admin for payment.</div></div><span class="badge br">Unpaid</span></div>
+  <div class="sl">Actioned</div>
+  <div class="email-item"><div><div class="email-from">Matt Brady (Volley Solutions) — intro via Tyler Prieb</div><div class="email-body">Launching Mirage, AI impact reporting platform. 100M+ orgs, some in water space. Mike greenlit intro. Booked Friday April 3 at 1:30pm. Reply sent from Cam.</div></div><span class="badge bg">Booked Apr 3</span></div>
+  <div class="email-item"><div><div class="email-from">Vince Freeman (Damascus Creative) — CaptureCulture</div><div class="email-body">Rescheduled from April 6 (Missional AI Conference conflict). Booked Thursday April 2 at 1:00pm. Reply sent from Cam.</div></div><span class="badge bg">Booked Apr 2</span></div>
+  <div class="email-item"><div><div class="email-from">Thomas Keown + Madeleine Pahr — Many Hopes</div><div class="email-body">Thank you email sent after Monday's podcast shoot. Shoot went well.</div></div><span class="badge bg">Sent</span></div>
+  <div class="email-item"><div><div class="email-from">Meryl (Quirk Creative) — new biz follow up</div><div class="email-body">Getting back Mon PM or Tue AM with client intel. Potential co-pitch. Mike offered 20% referral year 1.</div></div><span class="badge by">Tue Mar 31</span></div>
+  <div class="email-item"><div><div class="email-from">LegalZoom — Form IT-204 due April 15</div><div class="email-body">Forwarded by Mike. Social Science Agency LLC NY Partnership Return due April 15. Added to Pesky Admin + taxes block.</div></div><span class="badge by">Apr 15</span></div>
+  <div class="email-item"><div><div class="email-from">LegalZoom — Registered Agent $399 auto-renewal</div><div class="email-body">Forwarded by Mike. Auto-renews April 24. Added to Pesky Admin. Cam researching alternatives.</div></div><span class="badge by">Apr 24</span></div>
+  <div class="email-item"><div><div class="email-from">Steve (Water is Basic) — David contract extension</div><div class="email-body">Emailed Steve asking if David's contract (ending March 27) should be extended. Awaiting reply.</div></div><span class="badge bgray">Awaiting reply</span></div>
+</div>
+
+<!-- PEOPLE -->
+<div class="page" id="page-people">
+  <div class="ph"><h1>Key contacts</h1><p>Everyone Mike cares about across all three companies</p></div>
+  <div class="sl">Clients — Social Science</div>
+  <div class="people-grid">
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FDF0EE;color:#C9402E;">BP</div><div><div class="person-name">Brady Pearson</div><div class="person-co">Charity Water — leaving</div></div></div><div class="person-row"><span class="person-label">Status</span><span>⚠ Leaving — Anthony takes over</span></div><div class="person-row"><span class="person-label">Last</span><span>Exclusion list email sent</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FEF8E8;color:#B87D00;">AN</div><div><div class="person-name">Anthony</div><div class="person-co">Charity Water — incoming</div></div></div><div class="person-row"><span class="person-label">Status</span><span>Taking over Brady's role</span></div><div class="person-row"><span class="person-label">Next</span><span>Thursday call — will question performance</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EEF6F1;color:#2A7040;">DM</div><div><div class="person-name">Dan McShane</div><div class="person-co">Governor's Woods Foundation</div></div></div><div class="person-row"><span class="person-label">Project</span><span>Richard Vague podcast</span></div><div class="person-row"><span class="person-label">Next</span><span>Reply to 3 channel questions</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">MG</div><div><div class="person-name">Michael Grady</div><div class="person-co">Governor's Woods Foundation</div></div></div><div class="person-row"><span class="person-label">Project</span><span>Richard Vague footage</span></div><div class="person-row"><span class="person-label">Next</span><span>Frame link email sending today</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FDF0EE;color:#C9402E;">SC</div><div><div class="person-name">Steve + Carrie + Abbey</div><div class="person-co">Water is Basic</div></div></div><div class="person-row"><span class="person-label">Project</span><span>Dallas event + content</span></div><div class="person-row"><span class="person-label">Next</span><span>Aesthetic video + IG shorts next week</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EEF6F1;color:#2A7040;">MB</div><div><div class="person-name">Matt Brady</div><div class="person-co">Volley Solutions</div></div></div><div class="person-row"><span class="person-label">Status</span><span>New intro via Tyler Prieb</span></div><div class="person-row"><span class="person-label">Next</span><span>Call Fri Apr 3 at 1:30pm</span></div></div>
+  </div>
+  <div class="sl">Clients — EyeCatcher</div>
+  <div class="people-grid">
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">TT</div><div><div class="person-name">Tammy Tran</div><div class="person-co">NBCU</div></div></div><div class="person-row"><span class="person-label">Project</span><span>Commitment to Privacy</span></div><div class="person-row"><span class="person-label">Next</span><span>Feedback due today Mar 26</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">KP</div><div><div class="person-name">Kevin Pearson</div><div class="person-co">NBCU + Lightning LMS</div></div></div><div class="person-row"><span class="person-label">Project 1</span><span>Knowledge checks + translation</span></div><div class="person-row"><span class="person-label">Project 2</span><span>Lightning LMS happy hour Tue Mar 31</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FEF8E8;color:#B87D00;">RG</div><div><div class="person-name">Renae Gigon</div><div class="person-co">Comcast</div></div></div><div class="person-row"><span class="person-label">Projects</span><span>Insider Trading + Think Twice</span></div><div class="person-row"><span class="person-label">Next</span><span>Think Twice feedback early next week</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EEF6F1;color:#2A7040;">FK</div><div><div class="person-name">Frank</div><div class="person-co">Televisa</div></div></div><div class="person-row"><span class="person-label">Project</span><span>Code of Conduct (Spanish)</span></div><div class="person-row"><span class="person-label">Next</span><span>Pending Frank's InDesign/PDF file</span></div></div>
+  </div>
+  <div class="sl">Partners + New Biz</div>
+  <div class="people-grid">
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">TK</div><div><div class="person-name">Thomas Keown</div><div class="person-co">Many Hopes — Founder</div></div></div><div class="person-row"><span class="person-label">Project</span><span>Many Hopes podcast (done)</span></div><div class="person-row"><span class="person-label">Next</span><span>Lunch Fri Mar 27 at 4pm</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FDF0EE;color:#C9402E;">VF</div><div><div class="person-name">Vince Freeman</div><div class="person-co">Damascus Creative</div></div></div><div class="person-row"><span class="person-label">Project</span><span>CaptureCulture pitch</span></div><div class="person-row"><span class="person-label">Call</span><span>Thu Apr 2 at 1:00pm</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EEF6F1;color:#2A7040;">MQ</div><div><div class="person-name">Meryl (Quirk Creative)</div><div class="person-co">Potential co-pitch partner</div></div></div><div class="person-row"><span class="person-label">Status</span><span>Fact-finding on client</span></div><div class="person-row"><span class="person-label">Next</span><span>Getting back Mon PM / Tue AM</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FEF8E8;color:#B87D00;">TP</div><div><div class="person-name">Tyler Prieb</div><div class="person-co">Missional Labs</div></div></div><div class="person-row"><span class="person-label">Role</span><span>Intro'd Matt Brady (Volley Solutions)</span></div><div class="person-row"><span class="person-label">Note</span><span>Faith + AI conference contact</span></div></div>
+  </div>
+  <div class="sl">Team — Social Science</div>
+  <div class="people-grid">
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">EB</div><div><div class="person-name">Evan Broome</div><div class="person-co">Social Science — Co-founder</div></div></div><div class="person-row"><span class="person-label">Role</span><span>Co-leader, direct access to Mike</span></div><div class="person-row"><span class="person-label">On</span><span>UMGC, internal meeting cadence</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EEF6F1;color:#2A7040;">DR</div><div><div class="person-name">Danielle Ruditsky</div><div class="person-co">Social Science — Creative Director</div></div></div><div class="person-row"><span class="person-label">Recently</span><span>Promoted to Creative Director</span></div><div class="person-row"><span class="person-label">On</span><span>Holi TM + Many Hopes coordination</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FEF8E8;color:#B87D00;">JP</div><div><div class="person-name">Jonah Peterson</div><div class="person-co">Social Science</div></div></div><div class="person-row"><span class="person-label">On</span><span>Hum creative, Charity Water, Holi TM</span></div><div class="person-row"><span class="person-label">Pending</span><span>$129.40 reimbursement + PTO Apr 24</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FDF0EE;color:#C9402E;">JM</div><div><div class="person-name">Jenna Muir</div><div class="person-co">Social Science</div></div></div><div class="person-row"><span class="person-label">On</span><span>Holi TM + UMGC matrix review</span></div><div class="person-row"><span class="person-label">Note</span><span>Performance review done — raise given</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EEF6F1;color:#2A7040;">JS</div><div><div class="person-name">Jason</div><div class="person-co">Social Science — Paid media</div></div></div><div class="person-row"><span class="person-label">On</span><span>Charity Water Google cuts + Kalahari</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">AF</div><div><div class="person-name">Alex (Aleksandra) Fasano</div><div class="person-co">Social Science</div></div></div><div class="person-row"><span class="person-label">On</span><span>UMGC, Credit Karma, Holi pitch</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">JJ</div><div><div class="person-name">Jacob Juan</div><div class="person-co">Social Science</div></div></div><div class="person-row"><span class="person-label">On</span><span>Holi story versions rendering today</span></div></div>
+  </div>
+  <div class="sl">Team — EyeCatcher</div>
+  <div class="people-grid">
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#FEF8E8;color:#B87D00;">DG</div><div><div class="person-name">Dan Gorbey</div><div class="person-co">EyeCatcher — Designer/Developer</div></div></div><div class="person-row"><span class="person-label">On</span><span>Insider Trading SB, COC Rev captions</span></div><div class="person-row"><span class="person-label">Note</span><span>Paternity leave started Mar 23 — monitor</span></div></div>
+    <div class="person-card"><div class="person-top"><div class="person-avatar" style="background:#EDF3FB;color:#1856A0;">MI</div><div><div class="person-name">Michael (internal lead)</div><div class="person-co">EyeCatcher — Review lead</div></div></div><div class="person-row"><span class="person-label">Role</span><span>Internal reviewer on EC builds</span></div></div>
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+}
+let doneCount=0;
+function paDone(id){
+  const item=document.getElementById(id);
+  const btn=item.querySelector('.done-btn');
+  const isDone=item.classList.toggle('done');
+  btn.textContent=isDone?'Undo':'Done';
+  doneCount+=isDone?1:-1;
+  document.getElementById('done-count').textContent=doneCount;
+}
+</script>
+</body>
+</html>
